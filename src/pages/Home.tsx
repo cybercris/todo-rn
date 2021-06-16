@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { View, StyleSheet } from "react-native";
 
 import { Header } from "../components/Header";
 import { MyTasksList } from "../components/MyTasksList";
@@ -12,9 +13,13 @@ interface Task {
 
 export function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [isDarkEnabled, setDarkIsEnabled] = useState(false);
+
+  function handleSwitchTheme() {
+    setDarkIsEnabled((oldState) => !oldState);
+  }
 
   function handleAddTask(newTaskTitle: string) {
-    //TODO - add new task if it's not empty
     if (newTaskTitle.length !== 0) {
       setTasks((oldState) => [
         ...oldState,
@@ -28,35 +33,49 @@ export function Home() {
   }
 
   function handleMarkTaskAsDone(id: number) {
-    //TODO - mark task as done if exists
-    const newTaskList = tasks.map(task => {
-      if(task.id === id){
-        task.done = !task.done
+    const newTaskList = tasks.map((task) => {
+      if (task.id === id) {
+        task.done = !task.done;
       }
 
       return task;
-    })
+    });
 
     setTasks(newTaskList);
   }
 
   function handleRemoveTask(id: number) {
-    //TODO - remove task from state
     const newTaskList = tasks.filter((task) => task.id !== id);
     setTasks(newTaskList);
   }
 
   return (
     <>
-      <Header />
+      <Header onValueChange={handleSwitchTheme} isDarkEnabled={isDarkEnabled} />
 
-      <TodoInput addTask={handleAddTask} />
+      <View
+        style={[
+          styles.body,
+          !isDarkEnabled
+            ? { backgroundColor: "#FFF" }
+            : { backgroundColor: "#191622" },
+        ]}
+      >
+        <TodoInput addTask={handleAddTask} isDarkEnabled={isDarkEnabled} />
 
-      <MyTasksList
-        tasks={tasks}
-        onPress={handleMarkTaskAsDone}
-        onLongPress={handleRemoveTask}
-      />
+        <MyTasksList
+          tasks={tasks}
+          onPress={handleMarkTaskAsDone}
+          onLongPress={handleRemoveTask}
+          isDarkEnabled={isDarkEnabled}
+        />
+      </View>
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  body: {
+    flex: 1,
+  },
+});
